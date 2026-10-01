@@ -32,6 +32,7 @@ import { join, win32 } from "node:path";
 import { tmpdir } from "node:os";
 import { spawn, spawnSync } from "node:child_process";
 import { runFreeCloud, recommendMode, writeLauncher } from "./free-cloud.mjs";
+import { installFamilyHistorySkill } from "./family-skill.mjs";
 
 const OLLAMA_API = "http://localhost:11434/api";
 const OPENCLAW_INSTALL_SH = "https://openclaw.ai/install.sh";
@@ -656,6 +657,10 @@ async function main() {
   for (const id of agents) {
     if (id === "openclaw") await setupOpenClaw(platform, model);
     if (id === "hermes") await setupHermes(platform, model);
+  }
+
+  if (!DRY && (await confirm("Install the Family History Researcher skill (keeps a cited research log)?", true))) {
+    for (const p of installFamilyHistorySkill(agents)) console.log(`  ${c.g("✓")} skill installed: ${p}`);
   }
 
   heading("Done");

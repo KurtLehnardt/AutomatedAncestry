@@ -19,6 +19,7 @@ import { writeFileSync, mkdirSync, existsSync, chmodSync, mkdtempSync } from "no
 import { join, win32 } from "node:path";
 import { tmpdir, homedir } from "node:os";
 import { spawn } from "node:child_process";
+import { installFamilyHistorySkill } from "./family-skill.mjs";
 
 export const FCC_REPO_URL = "https://github.com/KurtLehnardt/free-claude-code-secure.git";
 /** Same commit FCC – Secure's own installer pins (scripts/install.sh FCC_COMMIT). */
@@ -438,6 +439,10 @@ export async function runFreeCloud(ctx) {
 
   // 4) Shortcut.
   const shortcut = DRY ? "<shortcut>" : writeLauncher(platform, { mode: "cloud", agent: "hermes" });
+
+  if (!DRY && (await confirm("Install the Family History Researcher skill (keeps a cited research log)?", true))) {
+    for (const p of installFamilyHistorySkill(["hermes"])) console.log(`  ${c.g("✓")} skill installed: ${p}`);
+  }
 
   heading("All done!");
   console.log(`  To start: open ${c.b("Family History Assistant")} ${c.dim(`(${shortcut})`)}`);

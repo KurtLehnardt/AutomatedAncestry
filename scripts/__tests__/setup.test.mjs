@@ -4,7 +4,7 @@ import {
   MODEL_TIERS, recommendModel, usableGB, nodeVersionOk, parseMacosMajor,
   bytesToGB, kbToGB, mibToGB, parseSysctlMemsize, parseNvidiaSmi, parseProcMeminfo,
   parseDfFreeGB, parseWinBytes, parseOllamaList, hasToolSupport, isChromeOSContainer,
-  pickAutoInstallCommand, pickOpenClawInstall, openclawConfigCommands,
+  pickAutoInstallCommand, pickOpenClawInstall, openclawConfigCommands, openclawOllamaAuthCommand,
   ollamaWindowsDir, withOllamaOnPath, waitForDaemon, installGuidance, launchOllamaDaemon,
   OLLAMA_MIN_MACOS, parseNvidiaSmiTotal, AGENTS, AGENT_CHOICES, parseAgentChoice,
   pickHermesInstall, contextModelName, contextModelfile, hermesConfigCommands, agentBinDirs, HERMES_CONTEXT,
@@ -155,6 +155,12 @@ describe("OpenClaw install + config", () => {
       ["config", "set", "models.providers.ollama.apiKey", "ollama-local"],
       ["models", "set", "ollama/qwen3.5:9b"],
     ]));
+  test("ollama auth command pipes a placeholder key on stdin, not an argv flag", () =>
+    assert.deepEqual(openclawOllamaAuthCommand(), {
+      cmd: "openclaw",
+      args: ["models", "auth", "paste-api-key", "--provider", "ollama"],
+      input: "ollama-local\n",
+    }));
 });
 
 describe("carried over from granted", () => {

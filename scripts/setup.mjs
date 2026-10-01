@@ -241,6 +241,19 @@ export function openclawConfigCommands(model) {
   ];
 }
 
+/**
+ * `config set models.providers.ollama.apiKey` above writes to OpenClaw's global
+ * config, but OpenClaw actually reads provider credentials from a separate
+ * per-agent auth store that only `models auth paste-api-key` populates — without
+ * this, OpenClaw fails at chat time with `No API key found for provider "ollama"`
+ * even though config/model selection both succeeded. Ollama needs no real key,
+ * so the same placeholder value already used above is piped in on stdin (this
+ * subcommand takes no --key/--value flag; confirmed via --help and a real run).
+ */
+export function openclawOllamaAuthCommand() {
+  return { cmd: "openclaw", args: ["models", "auth", "paste-api-key", "--provider", "ollama"], input: "ollama-local\n" };
+}
+
 /** How the AI runs: on this computer, or on free online services through FCC. */
 export const MODES = {
   local: {
@@ -461,6 +474,18 @@ function runInherit(cmd, args) {
   }
   try {
     return spawnSync(cmd, args, { stdio: "inherit", env: childEnv(), shell: process.platform === "win32" }).status === 0;
+  } catch {
+    return false;
+  }
+}
+/** Like runInherit, but feeds `input` on stdin instead of inheriting the terminal's (for prompts that only read stdin, e.g. OpenClaw's paste-api-key). */
+function runWithInput(cmd, args, input) {
+  if (DRY) {
+    console.log(c.dim(`    [dry-run] ${cmd} ${args.join(" ")} <<< (piped input)`));
+    return true;
+  }
+  try {
+    return spawnSync(cmd, args, { input, encoding: "utf8", env: childEnv(), shell: process.platform === "win32" }).status === 0;
   } catch {
     return false;
   }
@@ -796,6 +821,11 @@ async function setupOpenClaw(platform, model) {
       console.log(c.r(`  \`openclaw ${args.join(" ")}\` failed. Run \`openclaw onboard\` and pick Ollama → Local only.`));
       process.exit(1);
     }
+  }
+  const auth = openclawOllamaAuthCommand();
+  if (!runWithInput(auth.cmd, auth.args, auth.input)) {
+    console.log(c.r(`  \`openclaw ${auth.args.join(" ")}\` failed. Run it yourself (any value works for Ollama) or chat will fail with "No API key found".`));
+    process.exit(1);
   }
   console.log(`  ${c.g("✓")} connected to Ollama — default model ollama/${model}`);
   if (await confirm("Install OpenClaw's background service so it starts with your computer?", true)) {

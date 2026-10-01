@@ -1,0 +1,14 @@
+{
+  "name": "automated-ancestry",
+  "version": "0.1.0",
+  "private": true,
+  "description": "One-command install of Ollama + a right-sized local model + OpenClaw",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=24.16" },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "setup:dry": "node scripts/setup.mjs --dry-run",
+    "test": "node --test \"scripts/__tests__/*.test.mjs\""
+  }
+}

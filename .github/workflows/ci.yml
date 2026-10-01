@@ -1,0 +1,28 @@
+name: ci
+
+# Hermetic: no network, no Ollama, no OpenClaw, no secrets. Unit tests cover
+# the pure logic in scripts/setup.mjs; the shell bootstraps get a
+# syntax check. Node 24 and 26 because OpenClaw's floor is 24.16.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ["24", "26"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm test
+      - run: bash -n install-linux.sh && bash -n install-macos.sh

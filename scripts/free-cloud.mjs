@@ -22,7 +22,7 @@ import { spawn } from "node:child_process";
 
 export const FCC_REPO_URL = "https://github.com/KurtLehnardt/free-claude-code-secure.git";
 /** Same commit FCC – Secure's own installer pins (scripts/install.sh FCC_COMMIT). */
-export const FCC_COMMIT = "88b99da8931222268b1e8c5b55acac5d44f66711";
+export const FCC_COMMIT = "f9cad38bcfd687652f27c45ff137f31845a13272";
 export const FCC_PYTHON = "3.14.0";
 export const FCC_URL = "http://127.0.0.1:8082";
 /** Versioned (not rolling) uv installer, used only if Hermes' install didn't leave uv behind. */

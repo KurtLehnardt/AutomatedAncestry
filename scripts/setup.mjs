@@ -8,6 +8,8 @@
  *   node scripts/setup.mjs --model qwen3.5:4b
  *   node scripts/setup.mjs --agent hermes     (openclaw | hermes | both)
  *   node scripts/setup.mjs --mode cloud       (local | cloud — free online services)
+ *   node scripts/setup.mjs --familysearch-setup  (one-time: connect the Family History
+ *                                                 Researcher skill to your FamilySearch.org account)
  *
  * Forked from granted's scaffold/scripts/setup-local.mjs (same author, MIT).
  * The detection, daemon-launch and parser logic is carried over unchanged; what
@@ -29,10 +31,11 @@ import { readFileSync, writeFileSync, mkdtempSync, realpathSync } from "node:fs"
 import { createInterface } from "node:readline";
 import { pathToFileURL } from "node:url";
 import { join, win32 } from "node:path";
-import { tmpdir } from "node:os";
+import { tmpdir, homedir } from "node:os";
 import { spawn, spawnSync } from "node:child_process";
-import { runFreeCloud, recommendMode, writeLauncher } from "./free-cloud.mjs";
+import { runFreeCloud, recommendMode, writeLauncher, openUrlCommand } from "./free-cloud.mjs";
 import { installFamilyHistorySkill } from "./family-skill.mjs";
+import { setupFamilySearch } from "./familysearch.mjs";
 
 const OLLAMA_API = "http://localhost:11434/api";
 const OPENCLAW_INSTALL_SH = "https://openclaw.ai/install.sh";
@@ -419,6 +422,7 @@ const argValue = (flag) => {
 const FORCED_MODEL = argValue("--model");
 const FORCED_AGENT = argValue("--agent");
 const FORCED_MODE = argValue("--mode");
+const FAMILYSEARCH_SETUP = ARGS.includes("--familysearch-setup");
 
 function ask(query) {
   return new Promise((resolve) => {
@@ -560,6 +564,11 @@ async function main() {
   if (platform !== "win32" && process.getuid?.() === 0) {
     console.log(c.r("  Please run this as your normal user, not root — OpenClaw should never run as root."));
     process.exit(1);
+  }
+
+  if (FAMILYSEARCH_SETUP) {
+    await setupFamilySearch({ c, heading, ask, confirm, run, openUrlCommand, platform, home: homedir() });
+    process.exit(0);
   }
 
   // 1) Hardware → budget → model.

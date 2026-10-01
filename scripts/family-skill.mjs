@@ -34,6 +34,7 @@ Keeps genealogy research honest and resumable: every fact traces to a source, ev
 - Researching an ancestor, family line, or historical record on the user's behalf
 - Transcribing or reading a scanned document, photo, or old-script record
 - The user asks to search, scrape, or automate a genealogy website
+- Reading or updating a person's record on FamilySearch.org
 - Don't use for: general chat unrelated to family history research
 
 ## Research Log
@@ -71,12 +72,25 @@ Before scraping, submitting forms to, or otherwise automating any website:
 
 **Completion criterion:** the terms check (and its outcome) is noted before any automated request is sent to the site.
 
+## FamilySearch.org
+
+FamilySearch is the one genealogy site this skill may act on directly — through FamilySearch's own OAuth Developer API (\`scripts/familysearch.mjs\`), never by scraping or storing a password. This satisfies the terms-check above for FamilySearch specifically; the same caution still applies to every other genealogy website.
+
+1. Reading a person (\`getPerson\`) needs no special caution beyond the usual citation rules above.
+2. Writing a fact is two steps, never one: call \`buildFactWriteRequest(fact, environment)\` to get the exact request, show the user precisely what value will be written to which person ID in which environment, and only call \`sendFactWrite\` after they explicitly confirm *that specific write*. Never batch multiple writes behind one confirmation.
+3. Default environment is Sandbox (test data). Writing to Beta or Production touches the real, shared, public Family Tree — every other researcher on that ancestor sees it. Only use Production/Beta if the user has explicitly chosen to, separately from the per-write confirmation in step 2.
+4. The \`changeMessage\` FamilySearch requires on every write IS this skill's citation requirement — use the Findings log's source line verbatim, never a placeholder.
+5. If no FamilySearch token is saved yet, tell the user to run FamilySearch setup first (\`setupFamilySearch\`) rather than attempting the API call.
+
+**Completion criterion:** no fact was written to FamilySearch without the user confirming that exact field/value/person first; every \`changeMessage\` matches a real source from the Findings log.
+
 ## Verification
 
 - The research-log file for this case exists and includes every finding, dead end, and open question from the session.
 - Every stated fact has a source line or is explicitly marked undocumented.
 - Every transcribed field from a scanned record carries a confidence tag.
 - Any site automation was preceded by a terms/robots.txt check, logged as such.
+- Any FamilySearch write was confirmed by the user for that exact fact before it was sent, with a changeMessage citing a real source.
 `;
 
 function yamlList(items) {
@@ -88,7 +102,7 @@ export function hermesFrontmatter() {
     "---",
     `name: ${SKILL_NAME}`,
     `description: "${SKILL_DESCRIPTION}"`,
-    "version: 0.1.0",
+    "version: 0.2.0",
     "author: AutomatedAncestry",
     "license: MIT",
     `platforms: ${yamlList(["linux", "macos", "windows"])}`,

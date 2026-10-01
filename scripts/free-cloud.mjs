@@ -377,6 +377,16 @@ export async function runFreeCloud(ctx) {
       working.push(pickProviderModel(p));
       continue;
     }
+    // A key saved in FCC from a previous run (or set up outside this wizard) only
+    // gets credited toward MODEL_FALLBACKS if we check for it here -- otherwise
+    // this loop only ever tracks keys freshly pasted in THIS run, silently
+    // dropping already-working providers from the fallback chain.
+    const existing = await admin(`/admin/api/providers/${p.id}/test`, {}).catch(() => null);
+    if (existing?.ok) {
+      working.push(pickProviderModel(p, existing.models));
+      console.log(`  ${c.g("✓")} already configured and working — keeping it.`);
+      continue;
+    }
     if (YES) {
       console.log(c.dim("  Skipped (unattended run)."));
       continue;

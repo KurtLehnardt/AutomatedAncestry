@@ -22,20 +22,28 @@
  *   - Default environment is "sandbox" (see ENVIRONMENT NOTE below), not
  *     production.
  *
- * ENVIRONMENT NOTE (read before changing the default): FamilySearch's docs
- * are inconsistent about what a freshly-registered external developer app
- * gets by default. One official page says a new app key is "automatically
- * enabled to access integration (formally called 'sandbox')" — implying
- * Integration IS the safe external-developer default. A different page
- * describes "Integration" as "an internal testing environment for
- * FamilySearch developers and CI/CD pipelines, not intended for external
- * developer use." These can't both be the whole story, and nothing we could
- * fetch resolves it. FS_ENVIRONMENTS.sandbox below uses the hostnames
- * confirmed for "Integration" (identint.familysearch.org /
- * api-integ.familysearch.org); CONFIRM against your own Application Details
- * page (or FamilySearch Developer Support) which environment your app key
- * actually has, and correct DEFAULT_ENVIRONMENT below if it's wrong before
- * relying on this for anything.
+ * ENVIRONMENT NOTE (read before changing the default): confirmed via
+ * developers.familysearch.org/main/docs/getting-started (fetched
+ * 2026-10-01) — a freshly-registered app key is automatically enabled for
+ * the non-production tier (one official page calls it "integration,
+ * formally called sandbox"; another calls the same auto-granted tier
+ * "Beta" — FamilySearch's own docs are internally inconsistent on the
+ * NAME, but agree it's automatic, no approval wait). Production (the
+ * real, public Family Tree) is different in kind, not just approval time:
+ * it requires acceptance into FamilySearch's "Compatible Solution
+ * Program," which per their own compatibility-review-process page
+ * requires being "a legal, registered business or non-profit
+ * organization," signing a Compatible Product Affiliate Agreement +
+ * Security Assessment + Production App Key Request and Use Agreement,
+ * and passing a solution evaluation. Whether an individual building a
+ * personal (non-distributed) tool can get real production WRITE access
+ * through some lighter path is NOT resolved by anything we could fetch —
+ * this may mean Production is genuinely unavailable to an individual
+ * through official channels, not just slower to obtain. CONFIRM with
+ * FamilySearch Developer Support directly before assuming Production
+ * will ever be reachable here; don't infer availability from silence.
+ * FS_ENVIRONMENTS.sandbox below uses the hostnames confirmed for
+ * "Integration" (identint.familysearch.org / api-integ.familysearch.org).
  */
 import { writeFileSync, readFileSync, existsSync, mkdirSync, chmodSync } from "node:fs";
 import { join } from "node:path";

@@ -34,7 +34,7 @@ import { join, win32 } from "node:path";
 import { tmpdir, homedir } from "node:os";
 import { spawn, spawnSync } from "node:child_process";
 import { runFreeCloud, recommendMode, writeLauncher, openUrlCommand } from "./free-cloud.mjs";
-import { installFamilyHistorySkill } from "./family-skill.mjs";
+import { installFamilyHistorySkill, installFamilyHistorySoul } from "./family-skill.mjs";
 import { setupFamilySearch } from "./familysearch.mjs";
 
 const OLLAMA_API = "http://localhost:11434/api";
@@ -693,8 +693,10 @@ async function main() {
     if (id === "hermes") await setupHermes(platform, model);
   }
 
-  if (!DRY && (await confirm("Install the Family History Researcher skill (keeps a cited research log)?", true))) {
+  if (!DRY && (await confirm("Install the Family History Researcher skill + persona (keeps a cited research log)?", true))) {
     for (const p of installFamilyHistorySkill(agents)) console.log(`  ${c.g("✓")} skill installed: ${p}`);
+    const soulWritten = installFamilyHistorySoul(agents, { createHermesProfile: (cmd) => runInherit(cmd.cmd, cmd.args) });
+    for (const p of soulWritten) console.log(`  ${c.g("✓")} persona installed: ${p}`);
   }
 
   heading("Done");

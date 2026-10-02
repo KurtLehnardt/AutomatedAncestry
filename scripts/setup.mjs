@@ -10,6 +10,8 @@
  *   node scripts/setup.mjs --mode cloud       (local | cloud — free online services)
  *   node scripts/setup.mjs --familysearch-setup  (one-time: connect the Family History
  *                                                 Researcher skill to your FamilySearch.org account)
+ *   node scripts/setup.mjs --familyfinder-setup  (one-time: store your familyFinder.net login
+ *                                                 for whichever agent(s) are installed)
  *
  * Forked from granted's scaffold/scripts/setup-local.mjs (same author, MIT).
  * The detection, daemon-launch and parser logic is carried over unchanged; what
@@ -36,6 +38,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { runFreeCloud, recommendMode, writeLauncher, openUrlCommand } from "./free-cloud.mjs";
 import { installFamilyHistorySkill, installFamilyHistorySoul } from "./family-skill.mjs";
 import { setupFamilySearch } from "./familysearch.mjs";
+import { setupFamilyFinder } from "./familyfinder.mjs";
 
 const OLLAMA_API = "http://localhost:11434/api";
 const OPENCLAW_INSTALL_SH = "https://openclaw.ai/install.sh";
@@ -436,6 +439,7 @@ const FORCED_MODEL = argValue("--model");
 const FORCED_AGENT = argValue("--agent");
 const FORCED_MODE = argValue("--mode");
 const FAMILYSEARCH_SETUP = ARGS.includes("--familysearch-setup");
+const FAMILYFINDER_SETUP = ARGS.includes("--familyfinder-setup");
 
 function ask(query) {
   return new Promise((resolve) => {
@@ -593,6 +597,16 @@ async function main() {
 
   if (FAMILYSEARCH_SETUP) {
     await setupFamilySearch({ c, heading, ask, confirm, run, openUrlCommand, platform, home: homedir() });
+    process.exit(0);
+  }
+
+  if (FAMILYFINDER_SETUP) {
+    const agentIds = ["hermes", "openclaw"].filter((bin) => run(bin, ["--version"], 15000));
+    if (!agentIds.length) {
+      console.log(c.r("  Neither Hermes nor OpenClaw is installed yet. Run this setup first, then retry."));
+      process.exit(1);
+    }
+    await setupFamilyFinder({ c, heading, ask, confirm, runInherit, runWithInput, agentIds, home: homedir() });
     process.exit(0);
   }
 

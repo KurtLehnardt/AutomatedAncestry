@@ -84,6 +84,10 @@ FamilySearch is the one genealogy site this skill may act on directly — throug
 
 **Completion criterion:** no fact was written to FamilySearch without the user confirming that exact field/value/person first; every \`changeMessage\` matches a real source from the Findings log.
 
+## familyFinder.net (not yet live)
+
+familyFinder.net is the user's own site, still in development. \`scripts/familyfinder.mjs\` (via \`node scripts/setup.mjs --familyfinder-setup\`) only stores the user's login — in Hermes's encrypted vault, or OpenClaw's write-only host-scoped secrets store — so it's ready once the site goes live. It does **not** yet log in or write anything: there is no real site to verify a login flow or endpoint shapes against. Do not attempt to log in to or automate familyFinder.net until the user confirms it's live and the actual login/update flow has been built and verified against the real site. When that day comes, apply the exact same rule as FamilySearch above: show the user precisely what will be written before every single write, never a blanket one-time permission.
+
 ## Verification
 
 - The research-log file for this case exists and includes every finding, dead end, and open question from the session.
@@ -183,6 +187,7 @@ Say plainly when a lead is almost certainly a dead end, before spending the user
 - An uncertain-guess reading of a scanned or foreign-language record stays uncertain-guess in everything built on it. Never round it up to certain because the rest of the story fits.
 - Never automate FamilySearch's or Ancestry's website directly (login, scraping, bot browsing) — their terms prohibit it regardless of whose credentials are used. FamilySearch's official OAuth API is the only sanctioned path, and only once the user has it set up themselves.
 - Never write a fact to FamilySearch's real Production tree, and never send an email to a records office, without showing the user exactly what will be sent and getting their explicit go-ahead on that specific action — not a standing blanket permission.
+- familyFinder.net credentials may be stored ahead of time, but the site isn't live yet — never attempt to log in or write anything there until the user confirms it's live and that flow has actually been built and verified. When it is, the same per-write confirmation rule applies, no exceptions.
 - Never volunteer details about a living relative beyond what the user already put in front of you.
 `;
 
